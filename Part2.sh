@@ -36,8 +36,8 @@ pacman -S --noconfirm xorg-server  nano sudo \
      dhcpcd networkmanager pamixer
 
 systemctl enable NetworkManager 
-echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-useradd -m -G wheel real
+echo "real    ALL=(ALL:ALL) ALL" >> /etc/sudoers
+useradd -m -G users real
 passwd real
 echo "Pre-Installation Finish Reboot now"
 exit 
