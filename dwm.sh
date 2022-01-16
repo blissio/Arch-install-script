@@ -1,7 +1,8 @@
 #part3
 printf '\033c'
-pacman -S lightdm xorg-xinit xorg git
-systemctl enable lightdm
+pacman -S xorg-xinit xorg git
+touch .xinitrc
+touch "exec dwm" >> /.xinitrc
 cd /usr/src
 git clone git://git.suckless.org/dwm
 git clone git://git.suckless.org/st
@@ -15,6 +16,5 @@ cd ..
 cd dmenu
 sudo make clean install
 cd
-touch .xinitrc
-touch "exec dwm" >> /.xinitrc
+
 exit
