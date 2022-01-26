@@ -83,6 +83,10 @@ printf '\033c'
 cd $HOME
 mkdir .config
 cd .config/
+git clone https://github.com/PandaFoss/baph
+cd baph/
+sudo make install
+cd ..
 git clone https://github.com/RealBlissIO/Dotfiles
 cp Dotfiles/urxvt .
 cp Dotfiles/.xinitrc ..
