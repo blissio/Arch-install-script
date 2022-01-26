@@ -81,5 +81,31 @@ exit
 #part3
 printf '\033c'
 cd $HOME
-
+mkdir .config
+cd .config/
+git clone https://github.com/RealBlissIO/Dotfiles
+cp Dotfiles/urxvt .
+cp Dotfiles/.xinitrc ..
+cp Dotfiles/dwm/ .
+cp Dotfiles/slstatus/ .
+cp Dotfiles/.Xresources ..
+cd dwm/
+sudo make clean install
+cd ..
+cd slstatus/
+sudo make clean install
+cd $HOME
+echo "alias shutdown='shutdown now'
+alias install='sudo pacman -S'
+alias update='sudo pacman -Syu'
+alias cdwm='nvim .config/dwm/config.h'
+alias curxvt='nvim .config/urxvt'
+alias nvim='vim'" >> .bashrc
+echo "We should be done ! machine rebooting"
+sleep 1 && echo"5"
+sleep 1 && echo"4"
+sleep 1 && echo"3"
+sleep 1 && echo"2"
+sleep 1 && echo"1"
+reboot
 exit
