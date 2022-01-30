@@ -105,11 +105,5 @@ alias update='sudo pacman -Syu'
 alias cdwm='nvim .config/dwm/config.h'
 alias curxvt='nvim .config/urxvt'
 alias nvim='vim'" >> .bashrc
-echo "We should be done ! machine rebooting"
-sleep 1 && echo"5"
-sleep 1 && echo"4"
-sleep 1 && echo"3"
-sleep 1 && echo"2"
-sleep 1 && echo"1"
-reboot
+echo "We should be done umount and reboot the machine"
 exit
