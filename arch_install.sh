@@ -2,7 +2,6 @@
 #part1
 printf '\033c'
 echo "Welcome to the arch-install script"
-reflector --latest 20 --sort rate --save /etc/pacman.d/mirrorlist --protocol https --download-timeout 5
 pacman --noconfirm -Sy archlinux-keyring
 loadkeys fr
 timedatectl set-ntp true
