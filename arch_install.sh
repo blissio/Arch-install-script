@@ -81,28 +81,5 @@ exit
 printf '\033c'
 cd $HOME
 mkdir .config
-cd .config/
-git clone https://github.com/PandaFoss/baph
-cd baph/
-sudo make install
-cd ..
-git clone https://github.com/RealBlissIO/Dotfiles
-cp Dotfiles/urxvt .
-cp Dotfiles/.xinitrc ..
-cp Dotfiles/dwm/ .
-cp Dotfiles/slstatus/ .
-cp Dotfiles/.Xresources ..
-cd dwm/
-sudo make clean install
-cd ..
-cd slstatus/
-sudo make clean install
-cd $HOME
-echo "alias shutdown='shutdown now'
-alias install='sudo pacman -S'
-alias update='sudo pacman -Syu'
-alias cdwm='nvim .config/dwm/config.h'
-alias curxvt='nvim .config/urxvt'
-alias nvim='vim'" >> .bashrc
-echo "We should be done umount and reboot the machine"
+
 exit
