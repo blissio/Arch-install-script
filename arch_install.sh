@@ -50,21 +50,16 @@ echo "Wich drive did you mount everything to ? [eg : sda]"
 grub-install $bootpartition
 grub-mkconfig -o /boot/grub/grub.cfg
 
-pacman -S --noconfirm xorg-xinit \
-     noto-fonts noto-fonts-emoji noto-fonts-cjk ttf-jetbrains-mono ttf-joypixels ttf-font-awesome \
-     sxiv mpv ffmpeg imagemagick  \
-     fzf man-db youtube-dl xclip maim \
-     ntfs-3g git \
-     vim rsync firefox \
-     libnotify jq \
-     dhcpcd picom alacritty
+pacman -S --noconfirm xorg-xinit noto-fonts noto-fonts-emoji noto-fonts-cjk ttf-jetbrains-mono ttf-joypixels ttf-font-awesome \
+     sxiv mpv ffmpeg imagemagick fzf man-db yt-dlp xclip ntfs-3g git vim rsync firefox jq picom alacritty
 sed -i 's/#%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 echo "Enter Username: "
 read username
 useradd -m -G wheel $username
 passwd $username
 cd /home/$username
+git clone https://github.com/RealBlissIO/Dotfiles.git
 mkdir .config
-cd .config/
-git clone https://git.suckless.org/dwm
+cp -r Dotfiles/config/ .config/
+cp Dotfiles/.xinitrc .
 exit
