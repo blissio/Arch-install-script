@@ -61,5 +61,15 @@ cd /home/$username
 git clone https://github.com/RealBlissIO/Dotfiles.git
 mkdir .config
 cp -r Dotfiles/config/ .config/
+mv .config/config/* .config/
 cp Dotfiles/.xinitrc .
+cd .config/dwm/
+sudo make clean install
+cd ..
+cd dmenu/
+sudo make clean install
+cd ..
+cd slstatus/
+sudo make clean install
+cd $HOME
 exit
