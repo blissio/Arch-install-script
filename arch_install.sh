@@ -7,13 +7,13 @@ loadkeys fr
 timedatectl set-ntp true && sleep 3
 lsblk
 echo " !! Remeber you need a root partitionand  a boot partition !! "
-echo "Enter the drive: "
+echo -n "Enter the drive: "
 read drive
 cfdisk $drive 
-echo "Enter the linux partition: "
+echo -n "Enter the linux partition: "
 read partition
 mkfs.ext4 $partition 
-echo "Enter boot partition: "
+echo -n "Enter boot partition: "
 read bootpartition
 mkfs.ext4 $bootpartition
 mount $partition /mnt 
@@ -46,7 +46,7 @@ passwd
 pacman --noconfirm -S grub networkmanager
 systemctl enable NetworkManager
 lsblk
-echo "Wich drive did you mount everything to ? [eg : sda]" 
+echo -n "Wich drive did you mount everything to ? [eg : sda]" 
 grub-install $bootpartition
 grub-mkconfig -o /boot/grub/grub.cfg
 
