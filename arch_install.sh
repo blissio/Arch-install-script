@@ -5,21 +5,16 @@ echo "Welcome to the arch-install script"
 pacman --noconfirm -Sy archlinux-keyring
 loadkeys fr
 timedatectl set-ntp true && sleep 3
+echo " !! Remember only one partition adn make it bootlable!! "
 lsblk
-echo " !! Remeber you need a root partitionand  a boot partition !! "
-echo -n "Enter the drive: "
+echo "Enter the drive: "
 read drive
 cfdisk $drive 
-echo -n "Enter the linux partition: "
+echo "Enter the linux partition: "
 read partition
 mkfs.ext4 $partition 
-echo -n "Enter boot partition: "
-read bootpartition
-mkfs.ext4 $bootpartition
 mount $partition /mnt 
-mkdir /mnt/boot
-mount $bootpartition /mnt/boot
-pacstrap /mnt base base-devel linux linux-firmware vim nvidia
+pacstrap /mnt base base-devel linux linux-firmware vim nvidia nvidia-utils grub networkmanager
 genfstab -U /mnt >> /mnt/etc/fstab
 sed '1,/^#part2$/d' arch_install.sh > /mnt/arch_install2.sh
 chmod +x /mnt/arch_install2.sh
@@ -48,28 +43,29 @@ systemctl enable NetworkManager
 lsblk
 echo -n "Wich drive did you mount everything to ? [eg : sda]" 
 grub-install $bootpartition
+sed -i 's/quiet/pci=noaer/g' /etc/default/grub
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-pacman -S --noconfirm xorg-xinit noto-fonts noto-fonts-emoji noto-fonts-cjk ttf-jetbrains-mono ttf-joypixels ttf-font-awesome \
-     sxiv mpv ffmpeg imagemagick fzf man-db yt-dlp xclip ntfs-3g git vim rsync firefox jq picom alacritty
-sed -i 's/#%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+pacman -S --noconfirm xorg-server xorg-xinit noto-fonts noto-fonts-emoji noto-fonts-cjk ttf-jetbrains-mono ttf-joypixels ttf-font-awesome \
+     sxiv mpv ffmpeg imagemagick fzf man-db yt-dlp xclip ntfs-3g git vim rsync firefox jq picom alacritty python-pywal maim zip unzip unrar p7zip \
+     pipewire pipewire-pulse pipewire-alsa libnotify dunst wpa_supplicant cmus lxappearance
+sed -i 's/#%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' /etc/sudoers
 echo "Enter Username: "
 read username
 useradd -m -G wheel $username
 passwd $username
 cd /home/$username
-git clone https://github.com/RealBlissIO/Dotfiles.git
-mkdir .config
-cp -r Dotfiles/config/ .config/
-mv .config/config/* .config/
-cp Dotfiles/.xinitrc .
-cd .config/dwm/
-sudo make clean install
-cd ..
-cd dmenu/
-sudo make clean install
-cd ..
-cd slstatus/
-sudo make clean install
+echo "Pre-Installation Finish Reboot now"
+ai3_path=/home/$username/arch_install3.sh
+sed '1,/^#part3$/d' arch_install2.sh > $ai3_path
+chown $username:$username $ai3_path
+chmod +x $ai3_path
+su -c $ai3_path -s /bin/sh $username
+exit
+
+#part3
+printf '\033c'
 cd $HOME
+echo "Under contruction......."
 exit
