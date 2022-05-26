@@ -71,7 +71,7 @@ echo "Setting up the config folder" &&
 mkdir .config  &&
 cd .config/ &&
 git clone https://aur.archlinux.org/pikaur.git &&
-cd pikaur && makepkg -si || echo "pikaur failed to install"
+cd pikaur && makepkg -si && pikaur nerd-fonts-jetbrains-mono || echo "pikaur failed to install"
 git clone https://github.com/shaolingit/Dotfiles.git &&
 mv .config/Dotfiles/config/alacritty . &&
 mv Dotfiles/suckless-old/* . &&
