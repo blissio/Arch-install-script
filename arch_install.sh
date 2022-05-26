@@ -66,6 +66,21 @@ exit
 
 #part3
 printf '\033c'
-cd $HOME
-echo "Under contruction......."
+cd $HOME &&
+echo "Setting up the config folder" &&
+mkdir .config  &&
+cd .config/ &&
+git clone https://aur.archlinux.org/pikaur.git &&
+cd pikaur && makepkg -si || echo "pikaur failed to install"
+git clone https://github.com/shaolingit/Dotfiles.git &&
+mv .config/Dotfiles/config/alacritty . &&
+mv Dotfiles/suckless-old/* . &&
+sudo make clean install -C dwm/ || echo "dwm failed to compile"
+sudo make clean install -C dmenu/  || echo "dmenu failed to compile"
+sudo make clean install -C slstatus/ || echo "slstatus failed to compile"
+cd $HOME && 
+mv .config/Dotfiles/config/bashrc .bashrc &&
+mv .config/Dotfiles/config/xinitrc .xinitrc
+exit
+
 exit
