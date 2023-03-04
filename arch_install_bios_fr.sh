@@ -7,7 +7,6 @@ if [[ $answer = n ]] ; then
   echo "Installer offline"
   exit 1
 fi
-sed -i "s/^#ParallelDownloads = 5$/ParallelDownloads = 3/" /etc/pacman.conf
 pacman --noconfirm -Sy archlinux-keyring
 loadkeys fr
 timedatectl set-ntp true
@@ -42,7 +41,7 @@ if [[ $answer = y ]] ; then
   mkdir /mnt/home
   mount $homepartition /mnt/home
 fi
-pacstrap /mnt base base-devel linux linux-firmware nvidia nvidia-firmware
+pacstrap /mnt base base-devel linux linux-firmware nvidia nvidia-utils
 genfstab -U /mnt >> /mnt/etc/fstab
 sed '1,/^#part2$/d' `basename $0` > /mnt/arch_install2.sh
 chmod +x /mnt/arch_install2.sh
@@ -52,8 +51,8 @@ exit
 #part2
 printf '\033c'
 pacman -S --noconfirm sed
-sed -i "s/^#ParallelDownloads = 5$/ParallelDownloads = 3/" /etc/pacman.conf
-ln -sf /usr/share/zoneinfo/Africa/Casablanca /etc/localtime
+read -p "Please type in your locale :" loca
+ln -sf /usr/share/zoneinfo/$loca /etc/localtime
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
@@ -80,13 +79,11 @@ grub-mkconfig -o /boot/grub/grub.cfg
 pacman -S --noconfirm xorg-server xorg-xinit xorg-xkill xorg-xsetroot xorg-xbacklight xorg-xprop \
      noto-fonts noto-fonts-emoji noto-fonts-cjk ttf-jetbrains-mono ttf-joypixels ttf-font-awesome \
      sxiv mpv zathura zathura-pdf-mupdf ffmpeg imagemagick  \
-     fzf man-db nitrogen python-pywal unclutter xclip maim \
-     zip unzip unrar p7zip xdotool papirus-icon-theme brightnessctl  \
+     fzf man-db feh unclutter xclip maim \
+     zip unzip unrar p7zip xdotool papirus-icon-theme \
      dosfstools ntfs-3g git pipewire pipewire-pulse \
-     arc-gtk-theme rsync firefox \
-     picom libnotify dunst slock jq aria2 cowsay \
-     networkmanager wpa_supplicant rsync pamixer cmus mpd ncmpcpp \
-     libconfig polybar
+     arc-gtk-theme picom libnotify dunst slock jq aria2 cowsay \
+     networkmanager rsync pamixer cmus libconfig
 
 systemctl enable NetworkManager.service 
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -115,5 +112,4 @@ cd
 pikaur -S libxft-bgra-git yt-dlp-drop-in
 cd 
 mkdir dw fi
-ln -s ~/.config/x11/xinitrc .xinitrc
 exit
