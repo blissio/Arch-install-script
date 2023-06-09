@@ -21,8 +21,8 @@ This script automates the installation process of Arch Linux using a simple comm
 ## Usage
 
 1. Download the script file.
-2. Make it executable: `chmod +x arch_install.sh`
-3. Run the script with root privileges: `sudo ./arch_install.sh`
+2. Make it executable: `chmod +x main.sh`
+3. Run the script with root privileges: `sudo ./main.sh`
 4. Follow the on-screen prompts and provide the necessary inputs.
 
 ## Requirements
