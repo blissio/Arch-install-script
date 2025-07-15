@@ -1,32 +1,70 @@
-# BlissIO's Arch Install Script
+# 🚀 BlissIO Arch Install Script
 
-## Disclaimer
+An interactive Bash script that walks you through disk partitioning, bootloader setup, locale selection, desktop environments, and more — without losing your soul to the wiki.
 
-This script is provided as-is, without any warranty or guarantee. Use it at your own risk. It is recommended to review and understand the script before running it on your system.
+> ⚠️ **Disclaimer:** This script is educational, intended for personal use or customization. It's not a "one-size-fits-all" installer, but a well-documented starting point for Arch tinkerers.
 
-## Features
-This script automates the installation process of Arch Linux using a simple command-line interface. It provides the following features:
+---
 
-1. Checks if the system uses UEFI or BIOS for boot.
-2. Updates the repositories and keyrings.
-3. Allows the user to choose a keyboard layout from the available options.
-4. Guides the user through automatic or manual partitioning of the selected drive.
-5. Generates the fstab file.
-6. Sets up locales and timezone.
-7. Prompts the user for hostname, root password, and a new user.
-8. Installs the GRUB bootloader for BIOS or the EFISTUB for UEFI systems.
-9. Configures sudo access for the new user.
-10. Optionally installs and configures a desktop environment (XFCE, GNOME, KDE) or NetworkManager.
+## ⚙️ Installation Steps
 
-## Usage
+1. Boot into the Arch ISO
+2. Clone the repo:
 
-1. Download the script file.
-2. Make it executable: `chmod +x main.sh`
-3. Run the script with root privileges: `sudo ./main.sh`
-4. Follow the on-screen prompts and provide the necessary inputs.
+   ```bash
+   git clone https://github.com/blissio/Arch-install-script.git
+   cd Arch-install-script
+   chmod +x arch-install.sh
+   ./arch-install.sh
+   ```
+3. Follow the prompts (keyboard layout, partitioning, locales, DE, etc.)
+4. Sit back — it's not automatic, but it's helpful.
 
-## Requirements
+---
 
-- An internet connection is required during the installation process.
-- Make sure the script is run on a machine compatible with Arch Linux.
+## 🧩 Features
+
+* ✅ **BIOS & UEFI Detection**
+  Automatically adapts partitioning and bootloader installation based on firmware type.
+
+* 🧠 **Interactive Walkthrough**
+  Keyboard layout selection, locale config, and hostname prompts included.
+
+* 💿 **Partitioning Options**
+  Choose between **automatic** (guided) or **manual** partitioning using your preferred tools.
+
+* 🔧 **Driver Detection**
+  Auto-installs NVIDIA and Broadcom drivers based on hardware scanning via `lspci`.
+
+* 💻 **Desktop Environment Installer**
+  Pick between **XFCE**, **GNOME**, **KDE**, or no DE at all — your system, your call.
+
+* 🛡️ **Security-First Setup**
+  Adds a root password, configures a sudo-enabled user, and locks down system basics.
+
+* 🌐 **NetworkManager Config**
+  Ensures networking works out of the box — whether GUI or headless.
+
+---
+
+## 📦 Requirements
+
+* A running **Arch ISO environment** (Live boot)
+* Internet connection
+* A clean disk (or willingness to repartition)
+* Familiarity with:
+
+  * `/dev/sdX` naming
+  * UEFI vs BIOS concepts
+  * Arch Linux installation philosophy
+
+---
+
+## 🤖 Why I Built This
+
+As a long-time Arch/Linux user and Cybersecurity/Data Science student, I wanted something flexible that *assists* but doesn’t *take over*. It’s fast enough for re-deployments and transparent enough.
+
+---
+
+## 📜 License
 
