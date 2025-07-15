@@ -1,6 +1,6 @@
 # 🚀 BlissIO Arch Install Script
 
-An interactive Bash script that walks you through disk partitioning, bootloader setup, locale selection, desktop environments, and more — without losing your soul to the wiki.
+An interactive Bash script that walks you through disk partitioning, bootloader setup, locale selection, desktop environments, and more.
 
 > ⚠️ **Disclaimer:** This script is educational, intended for personal use or customization. It's not a "one-size-fits-all" installer, but a well-documented starting point for Arch tinkerers.
 
