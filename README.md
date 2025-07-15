@@ -2,9 +2,12 @@
 
 An interactive Bash script that walks you through disk partitioning, bootloader setup, locale selection, desktop environments, and more.
 
+![jackhammer](https://github.com/user-attachments/assets/6751b65d-f123-4872-a697-eaea70c15190) WATCH OUT THIS REPO IS WIP
+
 > ⚠️ **Disclaimer:** This script is educational, intended for personal use or customization. It's not a "one-size-fits-all" installer, but a well-documented starting point for Arch tinkerers.
 
 ---
+
 
 ## ⚙️ Installation Steps
 
