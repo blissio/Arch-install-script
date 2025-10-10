@@ -30,66 +30,28 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Function to check internet connectivity
-check_internet() {
-    print_info "Checking internet connectivity..."
-    if ! ping -c 3 archlinux.org &>/dev/null; then
-        print_error "No internet connection. Please check your network."
-        return 1
-    fi
-    print_success "Internet connection available"
-    return 0
-}
-
-# Function to update mirrorlist with reliable mirrors
-update_mirrorlist() {
-    print_info "Updating mirrorlist for better download speeds..."
-    
-    # Backup current mirrorlist
-    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 2>/dev/null || true
-    
-    # Install reflector if not available
-    if ! command -v reflector &>/dev/null; then
-        print_info "Installing reflector for mirror optimization..."
-        pacman --noconfirm -Sy reflector
-    fi
-    
-    # Generate optimized mirrorlist
-    print_info "Generating optimized mirrorlist..."
-    reflector \
-        --country "$(curl -s https://ipapi.co/country/ 2>/dev/null || echo US)" \
-        --protocol https \
-        --latest 20 \
-        --sort rate \
-        --save /etc/pacman.d/mirrorlist \
-        --connection-timeout 5 \
-        --download-timeout 10
-    
-    print_success "Mirrorlist updated"
-}
-
 # Function to retry package operations with better error handling
 pacman_retry() {
     local max_retries=3
-    local retry_delay=10
+    local retry_delay=5
     local attempt=1
     
     while [ $attempt -le $max_retries ]; do
-        print_info "Attempt $attempt of $max_retries: $*"
+        print_info "Attempt $attempt of $max_retries: pacman $*"
         
         if pacman "$@"; then
             return 0
         fi
         
-        print_warning "Attempt $attempt failed, retrying in $retry_delay seconds..."
-        sleep $retry_delay
+        if [ $attempt -lt $max_retries ]; then
+            print_warning "Attempt $attempt failed, retrying in $retry_delay seconds..."
+            sleep $retry_delay
+        fi
         
-        # Increase retry delay for subsequent attempts
-        retry_delay=$((retry_delay * 2))
         ((attempt++))
     done
     
-    print_error "All $max_retries attempts failed for: $*"
+    print_error "All $max_retries attempts failed for: pacman $*"
     return 1
 }
 
@@ -104,50 +66,22 @@ install_packages() {
     while [ $attempt -le $max_retries ]; do
         print_info "Package installation attempt $attempt of $max_retries"
         
-        # Use parallel downloads and continue on error to get as many packages as possible
-        if pacstrap -c /mnt $package_list 2>&1 | tee /tmp/pacstrap.log; then
+        # Use pacstrap with continue on error
+        if pacstrap -c /mnt $package_list; then
             print_success "Package installation completed successfully"
             return 0
         fi
         
-        # Check if we had critical failures vs. just some package failures
-        if grep -q "failed to commit transaction" /tmp/pacstrap.log; then
-            print_warning "Some packages failed to install, checking which ones..."
-            
-            # Extract failed package names from the log
-            local failed_packages=$(grep -o "failed retrieving file .*" /tmp/pacstrap.log | sed "s/failed retrieving file '\(.*\)'.*/\1/" | grep -o '^[^-]*' | sort -u)
-            
-            if [ -n "$failed_packages" ]; then
-                print_warning "Failed packages: $failed_packages"
-                
-                # Try installing remaining packages individually
-                local remaining_packages="$package_list"
-                for failed_pkg in $failed_packages; do
-                    print_warning "Skipping problematic package: $failed_pkg"
-                    remaining_packages=$(echo "$remaining_packages" | sed "s/\b$failed_pkg\b//g")
-                done
-                
-                if [ -n "$remaining_packages" ]; then
-                    print_info "Retrying with remaining packages: $remaining_packages"
-                    package_list="$remaining_packages"
-                else
-                    print_error "All packages failed to install"
-                    return 1
-                fi
-            fi
-        fi
-        
         if [ $attempt -lt $max_retries ]; then
-            print_warning "Attempt $attempt failed, updating mirrors and retrying..."
-            update_mirrorlist
-            print_info "Waiting before retry..."
-            sleep 10
+            print_warning "Attempt $attempt failed, retrying in 5 seconds..."
+            sleep 5
         fi
         
         ((attempt++))
     done
     
     print_error "Failed to install packages after $max_retries attempts"
+    print_warning "Trying to continue with partial installation..."
     return 1
 }
 
@@ -164,15 +98,6 @@ echo "=========================================="
 echo "  Arch Linux Gaming Setup Installer"
 echo "=========================================="
 echo ""
-
-# Check internet first
-if ! check_internet; then
-    print_error "Cannot proceed without internet connection"
-    exit 1
-fi
-
-# Update mirrorlist for better performance
-update_mirrorlist
 
 # Update system clock
 timedatectl set-ntp true
@@ -246,7 +171,7 @@ while true; do
     fi
 done
 
-# Partitioning
+# Partitioning - No swap partition, using swap file instead
 print_info "Starting automatic partitioning for $BOOT_MODE..."
 
 # Determine partition naming scheme
@@ -265,16 +190,13 @@ if [[ "$BOOT_MODE" == "uefi" ]]; then
     parted -s "$DRIVE_PATH" mklabel gpt
     parted -s "$DRIVE_PATH" mkpart primary fat32 1MiB 1GiB
     parted -s "$DRIVE_PATH" set 1 esp on
-    parted -s "$DRIVE_PATH" mkpart primary linux-swap 1GiB 17GiB
-    parted -s "$DRIVE_PATH" mkpart primary ext4 17GiB 100%
+    parted -s "$DRIVE_PATH" mkpart primary ext4 1GiB 100%
     
     BOOT_PART="${PART_PREFIX}1"
-    SWAP_PART="${PART_PREFIX}2"
-    ROOT_PART="${PART_PREFIX}3"
+    ROOT_PART="${PART_PREFIX}2"
     
     print_info "Formatting partitions..."
     mkfs.fat -F32 "$BOOT_PART"
-    mkswap "$SWAP_PART"
     mkfs.ext4 -F "$ROOT_PART"
     
 else
@@ -282,22 +204,18 @@ else
     parted -s "$DRIVE_PATH" mklabel msdos
     parted -s "$DRIVE_PATH" mkpart primary ext4 1MiB 513MiB
     parted -s "$DRIVE_PATH" set 1 boot on
-    parted -s "$DRIVE_PATH" mkpart primary linux-swap 513MiB 16GiB
-    parted -s "$DRIVE_PATH" mkpart primary ext4 16GiB 100%
+    parted -s "$DRIVE_PATH" mkpart primary ext4 513MiB 100%
     
     BOOT_PART="${PART_PREFIX}1"
-    SWAP_PART="${PART_PREFIX}2"
-    ROOT_PART="${PART_PREFIX}3"
+    ROOT_PART="${PART_PREFIX}2"
     
     print_info "Formatting partitions..."
     mkfs.ext4 -F "$BOOT_PART"
-    mkswap "$SWAP_PART"
     mkfs.ext4 -F "$ROOT_PART"
 fi
 
 # Mount partitions
 print_info "Mounting partitions..."
-swapon "$SWAP_PART"
 mount "$ROOT_PART" /mnt
 
 if [[ "$BOOT_MODE" == "uefi" ]]; then
@@ -319,15 +237,15 @@ AUDIO_PACKAGES="pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber"
 FILESYSTEM_PACKAGES="ntfs-3g exfat-utils gvfs gvfs-mtp udisks2"
 
 if ! install_packages $BASE_PACKAGES $SYSTEM_PACKAGES $AUDIO_PACKAGES $FILESYSTEM_PACKAGES; then
-    print_error "Critical package installation failed"
-    print_info "You may need to check your internet connection or try different mirrors"
-    exit 1
+    print_warning "Some packages failed to install, but continuing with installation..."
 fi
 
 # Install bootloader packages
 if [[ "$BOOT_MODE" == "uefi" ]]; then
+    print_info "Installing efibootmgr..."
     pacman_retry -S --noconfirm efibootmgr
 else
+    print_info "Installing GRUB..."
     pacman_retry -S --noconfirm grub
 fi
 
@@ -355,12 +273,16 @@ esac
 # Install KDE Plasma
 print_info "Installing KDE Plasma..."
 KDE_PACKAGES="plasma-meta kde-applications-meta sddm"
-pacman_retry -S --noconfirm $KDE_PACKAGES
+if ! pacman_retry -S --noconfirm $KDE_PACKAGES; then
+    print_warning "Some KDE packages failed, but continuing..."
+fi
 
 # Additional useful packages
 print_info "Installing additional packages..."
 EXTRA_PACKAGES="firefox discord qt5-virtualkeyboard dnsmasq vde2 bridge-utils openbsd-netcat ebtables"
-pacman_retry -S --noconfirm $EXTRA_PACKAGES
+if ! pacman_retry -S --noconfirm $EXTRA_PACKAGES; then
+    print_warning "Some extra packages failed, but continuing..."
+fi
 
 # Generate fstab
 print_info "Generating fstab..."
@@ -397,6 +319,16 @@ cat > /etc/hosts <<EOF
 ::1         localhost
 127.0.1.1   \$HOSTNAME.localdomain \$HOSTNAME
 EOF
+
+# Create swap file (8GB)
+print_info "Creating swap file..."
+dd if=/dev/zero of=/swapfile bs=1M count=8192 status=progress
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+
+# Add swapfile to fstab
+echo "/swapfile none swap defaults 0 0" >> /etc/fstab
 
 # Install bootloader
 if [[ "$BOOT_MODE" == "uefi" ]]; then
@@ -477,7 +409,7 @@ if [ -n "\$NTFS_PARTS" ]; then
     
     for NTFS_PART in \$NTFS_PARTS; do
         # Skip if it's our root or boot partition
-        if [[ "\$NTFS_PART" == "$ROOT_PART" ]] || [[ "\$NTFS_PART" == "$BOOT_PART" ]] || [[ "\$NTFS_PART" == "$SWAP_PART" ]]; then
+        if [[ "\$NTFS_PART" == "$ROOT_PART" ]] || [[ "\$NTFS_PART" == "$BOOT_PART" ]]; then
             continue
         fi
         
@@ -532,6 +464,7 @@ print_info "- Launch games with: gamemoderun %command%"
 print_info "- Monitor performance with MangoHud"
 print_info "- NTFS drives will auto-mount in KDE file manager"
 print_info "- Existing NTFS partitions mounted under /mnt/"
+print_info "- Swap file created at /swapfile (8GB)"
 echo ""
 
 read -p "Press Enter to exit..."
