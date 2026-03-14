@@ -2,7 +2,7 @@
 
 > ⚠️ WIP — works for my setup, use it as a starting point not a guarantee.
 
-An interactive Bash installer for Arch Linux. Handles partitioning, bootloader, GPU drivers, and a full KDE Plasma gaming setup. Supports both UEFI (systemd-boot) and BIOS/Legacy (GRUB).
+An interactive Bash installer for Arch Linux. Handles partitioning, bootloader, GPU drivers, desktop environment, and optional gaming setup. Supports both UEFI (systemd-boot) and BIOS/Legacy (GRUB).
 
 ---
 
@@ -10,13 +10,16 @@ An interactive Bash installer for Arch Linux. Handles partitioning, bootloader, 
 
 - Detects firmware type and partitions accordingly (GPT for UEFI, MBR for BIOS)
 - Auto-detects GPU and installs the right drivers (NVIDIA, AMD, or Intel)
-- Installs KDE Plasma with SDDM
+- DE selection: KDE Plasma, GNOME, XFCE, or minimal (no DE)
+- AUR helper install: choose paru, yay, or skip
+- Optional gaming setup: Steam, gamemode, MangoHud, Lutris (prompted)
+- Configurable swap file size (prompted)
 - Sets up PipeWire audio, NetworkManager, and udisks2
-- Creates an 8GB swap file instead of a swap partition
 - Detects existing NTFS partitions and mounts them automatically
 - Enables multilib for 32-bit support
-- Applies gamemode limits and NVIDIA DRM modeset if needed
 - Configures sudo, wheel group, and a non-root user
+- Validates hostname, username, and swap size before proceeding
+- Exits immediately if not run as root or if no internet is detected
 
 ---
 
@@ -31,7 +34,17 @@ chmod +x main.sh
 ./main.sh
 ```
 
-You'll be prompted for keyboard layout, target drive, hostname, username, and timezone. Everything else is handled automatically.
+You'll be prompted for:
+- Keyboard layout
+- Hostname and username
+- Target drive
+- Swap file size
+- Desktop environment
+- AUR helper
+- Gaming setup (yes/no)
+- Timezone and passwords (inside chroot)
+
+Everything else is handled automatically.
 
 ---
 
@@ -49,8 +62,9 @@ You'll be prompted for keyboard layout, target drive, hostname, username, and ti
 - **UEFI** systems use systemd-boot with a 1GB EFI partition
 - **BIOS** systems use GRUB with a 512MB boot partition
 - NVIDIA systems get `nvidia-drm.modeset=1` set automatically
+- AUR helper installs as the new user inside chroot — makepkg won't run as root
+- Gaming setup enables multilib automatically if not already enabled
 - Existing NTFS partitions are detected and added to fstab under `/mnt/`
-- KDE is the only DE option right now — GNOME/XFCE support coming later
 
 ---
 
