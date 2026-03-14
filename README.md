@@ -1,73 +1,57 @@
-# 🚀 BlissIO Arch Install Script
+# Arch Linux Install Script
 
-An interactive Bash script that walks you through disk partitioning, bootloader setup, locale selection, desktop environments, and more.
+> ⚠️ WIP — works for my setup, use it as a starting point not a guarantee.
 
-![jackhammer](https://github.com/user-attachments/assets/6751b65d-f123-4872-a697-eaea70c15190) WATCH OUT THIS REPO IS WIP
-
-> ⚠️ **Disclaimer:** This script is educational, intended for personal use or customization. It's not a "one-size-fits-all" installer, but a well-documented starting point for Arch tinkerers.
+An interactive Bash installer for Arch Linux. Handles partitioning, bootloader, GPU drivers, and a full KDE Plasma gaming setup. Supports both UEFI (systemd-boot) and BIOS/Legacy (GRUB).
 
 ---
 
+## What it does
 
-## ⚙️ Installation Steps
-
-1. Boot into the Arch ISO
-2. Clone the repo:
-
-   ```bash
-   git clone https://github.com/blissio/Arch-install-script.git
-   cd Arch-install-script
-   chmod +x arch-install.sh
-   ./arch-install.sh
-   ```
-3. Follow the prompts (keyboard layout, partitioning, locales, DE, etc.)
-4. Sit back — it's not automatic, but it's helpful.
+- Detects firmware type and partitions accordingly (GPT for UEFI, MBR for BIOS)
+- Auto-detects GPU and installs the right drivers (NVIDIA, AMD, or Intel)
+- Installs KDE Plasma with SDDM
+- Sets up PipeWire audio, NetworkManager, and udisks2
+- Creates an 8GB swap file instead of a swap partition
+- Detects existing NTFS partitions and mounts them automatically
+- Enables multilib for 32-bit support
+- Applies gamemode limits and NVIDIA DRM modeset if needed
+- Configures sudo, wheel group, and a non-root user
 
 ---
 
-## 🧩 Features
+## Usage
 
-* ✅ **BIOS & UEFI Detection**
-  Automatically adapts partitioning and bootloader installation based on firmware type.
+Boot into the Arch ISO, then:
 
-* 🧠 **Interactive Walkthrough**
-  Keyboard layout selection, locale config, and hostname prompts included.
+```bash
+git clone https://github.com/blissio/Arch-install-script.git
+cd Arch-install-script
+chmod +x main.sh
+./main.sh
+```
 
-* 💿 **Partitioning Options**
-  Choose between **automatic** (guided) or **manual** partitioning using your preferred tools.
-
-* 🔧 **Driver Detection**
-  Auto-installs NVIDIA and Broadcom drivers based on hardware scanning via `lspci`.
-
-* 💻 **Desktop Environment Installer**
-  Pick between **XFCE**, **GNOME**, **KDE**, or no DE at all — your system, your call.
-
-* 🛡️ **Security-First Setup**
-  Adds a root password, configures a sudo-enabled user, and locks down system basics.
-
-* 🌐 **NetworkManager Config**
-  Ensures networking works out of the box — whether GUI or headless.
+You'll be prompted for keyboard layout, target drive, hostname, username, and timezone. Everything else is handled automatically.
 
 ---
 
-## 📦 Requirements
+## Requirements
 
-* A running **Arch ISO environment** (Live boot)
-* Internet connection
-* A clean disk (or willingness to repartition)
-* Familiarity with:
-
-  * `/dev/sdX` naming
-  * UEFI vs BIOS concepts
-  * Arch Linux installation philosophy
+- Arch Linux live ISO (booted)
+- Internet connection
+- A drive you're okay wiping
+- Basic familiarity with `/dev/sdX` naming and UEFI vs BIOS
 
 ---
 
-## 🤖 Why I Built This
+## Notes
 
-As a long-time Arch/Linux user and Cybersecurity/Data Science student, I wanted something flexible that *assists* but doesn’t *take over*. It’s fast enough for re-deployments and transparent enough.
+- **UEFI** systems use systemd-boot with a 1GB EFI partition
+- **BIOS** systems use GRUB with a 512MB boot partition
+- NVIDIA systems get `nvidia-drm.modeset=1` set automatically
+- Existing NTFS partitions are detected and added to fstab under `/mnt/`
+- KDE is the only DE option right now — GNOME/XFCE support coming later
 
 ---
 
-## 📜 License
-
+*by [blissio](https://github.com/blissio) — built for my own installs, shared for anyone who wants a starting point*
